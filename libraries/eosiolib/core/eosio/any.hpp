@@ -231,7 +231,7 @@ namespace eosio {
    template<typename T>
    any to_any(T&& v) {
       any_tag<typename std::decay<T>::type> tag;
-      return to_any_impl(v, tag);
+      return to_any_impl(std::forward<T>(v), tag);
    }
 
    template<typename T, typename Tag>
@@ -297,6 +297,11 @@ namespace eosio {
 
 #define ANYFY_STRUCT(TYPE, ARGS) \
    eosio::any to_any() { \
+      eosio::any::object obj; \
+      BOOST_PP_SEQ_FOR_EACH(STRUCT_FIELD_TO_ANY, _, ARGS) \
+      return obj; \
+   } \
+   const eosio::any to_any() const { \
       eosio::any::object obj; \
       BOOST_PP_SEQ_FOR_EACH(STRUCT_FIELD_TO_ANY, _, ARGS) \
       return obj; \
