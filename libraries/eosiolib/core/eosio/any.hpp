@@ -11,14 +11,6 @@
 
 namespace eosio { 
 
-   struct any;
-
-   template<typename T>
-   any to_any(T&& v);
-
-   template<typename T>
-   T from_any(const any& v);
-
    struct any {
       enum type_id {
          null_type,
@@ -40,9 +32,7 @@ namespace eosio {
       any() = default;
 
       template<typename T>
-      any(T&& v) {
-         *this = eosio::to_any<T>(std::forward<T>(v));
-      }
+      any(T v): data(v) {}
 
       template<typename T>
       const T& get() const {
@@ -53,7 +43,6 @@ namespace eosio {
       T& get() {
          return std::get<T>(data);
       }
-
 
       template<typename T>
       const T as() const {
@@ -226,16 +215,7 @@ namespace eosio {
    }
 
    template<typename T>
-   struct any_tag {};
-
-   template<typename T>
-   any to_any(T&& v) {
-      any_tag<typename std::decay<T>::type> tag;
-      return to_any_impl(std::forward<T>(v), tag);
-   }
-
-   template<typename T, typename Tag>
-   any to_any_impl(T&& v, Tag) {
+   any to_any(T v) {
       return v.to_any();
    }
 
@@ -247,10 +227,10 @@ namespace eosio {
 
 #define ANY_IMPL(TYPE) \
 namespace eosio { \
-   template<typename T> \
-   any to_any_impl(T&& v, any_tag<TYPE>) { \
+   template<> \
+   any to_any(TYPE v) { \
       any a; \
-      a.data = std::forward<T>(v); \
+      a.data = v; \
       return a; \
    } \
    template<> \
@@ -269,8 +249,8 @@ ANY_IMPL(any::array)
 ANY_IMPL(any::object)
 
 namespace eosio {
-   template<typename T>
-   any to_any_impl(T&& v, any_tag<name>) {
+   template<>
+   any to_any(name v) {
       any a;
       a.data = v.value;
       return a;
@@ -290,7 +270,7 @@ namespace eosio {
 }
 
 #define STRUCT_FIELD_TO_ANY(r, data, elem) \
-      obj[BOOST_PP_STRINGIZE(elem)] = elem;
+      obj[BOOST_PP_STRINGIZE(elem)] = eosio::to_any(elem);
 
 #define ANY_TO_STRUCT_FIELD(r, data, elem) \
       obj.elem = eosio::from_any<decltype(elem)>(data[BOOST_PP_STRINGIZE(elem)]);
