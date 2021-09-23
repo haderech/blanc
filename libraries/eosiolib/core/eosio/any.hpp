@@ -139,21 +139,19 @@ namespace eosio {
          void operator()(const std::string& v) { eosio::print("\"", v, "\""); }
          void operator()(const array& arr) {
             bool has_items = false;
+            eosio::print("[");
             for (auto const& v : arr) {
-               eosio::print((!has_items ? (has_items = true, "[") : ", "), v);
+               eosio::print((!has_items ? (has_items = true, "") : ", "), v);
             }
-            if (has_items) {
-               eosio::print("]");
-            }
+            eosio::print("]");
          }
          void operator()(const object& obj) {
             bool has_items = false;
+            eosio::print("{");
             for (auto const& [k, v] : obj) {
-               eosio::print((!has_items ? (has_items = true, "{\"") : ", \""), k, "\": ", v);
+               eosio::print((!has_items ? (has_items = true, "\"") : ", \""), k, "\": ", v);
             }
-            if (has_items) {
-               eosio::print("}");
-            }
+            eosio::print("}");
          }
       };
 
