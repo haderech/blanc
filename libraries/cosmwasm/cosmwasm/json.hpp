@@ -131,44 +131,25 @@ namespace cosmwasm { namespace json {
    }
 
    namespace detail {
-      template<std::size_t I>
-      using index_t = std::integral_constant<std::size_t, I>;
-      template<std::size_t I>
-      constexpr index_t<I> index{};
-
-      template<std::size_t...Is>
-      constexpr std::tuple< index_t<Is>... > make_indexes(std::index_sequence<Is...>){
-        return std::make_tuple(index<Is>...);
+      template<size_t I, typename T>
+      void from_json(const value& v, T& out) {
+         if constexpr (I < std::variant_size_v<T>) {
+           if (v.contains(std::variant_alternative_t<I, T>::__typename)) {
+              out = json::from_json<std::variant_alternative_t<I, T>>(v);
+           } else {
+              from_json<I + 1>(v, out);
+           }
+         } else {
+            check(false, "not found any valid variant type");
+         }
       }
-      template<std::size_t N>
-      constexpr auto indexing_tuple = make_indexes(std::make_index_sequence<N>{});
-
-      template<std::size_t...Is, class F, class T>
-      auto tuple_foreach( std::index_sequence<Is...>, T&& tup, F&& f ) {
-        ( f( std::get<Is>( std::forward<T>(tup) ) ), ... );
-      }
-      template<class F, class T>
-      auto tuple_foreach( T&& tup, F&& f ) {
-        auto indexes = std::make_index_sequence< std::tuple_size_v< std::decay_t<T> > >{};
-        return tuple_foreach( indexes, std::forward<T>(tup), std::forward<F>(f) );
-      }
-   }
-
-   template<typename T, std::enable_if_t<detail::is_variant<T>::value>* = nullptr>
-   std::optional<T> try_from_json(const value& v) {
-      auto indexes = detail::indexing_tuple<std::variant_size_v<T>>;
-      std::optional<T> retval;
-      detail::tuple_foreach(indexes, [&](auto I) {
-         if (retval) return;
-         auto p = try_from_json<std::variant_alternative_t<I,T>>(v);
-         if (p) retval.emplace(std::move(*p));
-      });
-      return retval;
    }
 
    template<typename T, std::enable_if_t<detail::is_variant<T>::value>* = nullptr>
    T from_json(const value& v) {
-      return *try_from_json<T>(v);
+      T out;
+      detail::from_json<0>(v, out);
+      return out;
    }
 
    template<typename T, std::enable_if_t<std::is_integral_v<std::decay_t<T>>, int> = 0>
@@ -195,14 +176,9 @@ namespace cosmwasm { namespace json {
 
    template<typename T, std::enable_if_t<detail::is_variant<T>::value>* = nullptr>
    value to_json(const T& v) {
-      auto indexes = detail::indexing_tuple<std::variant_size_v<T>>;
-      std::optional<json::value> retval;
-      detail::tuple_foreach(indexes, [&](auto I) {
-         if (retval) return;
-         auto p = std::get_if<I>(&v);
-         if (p) retval.emplace(to_json(*p));
-      });
-      return (retval) ? *retval : json::value();
+      value out;
+      std::visit([&](auto& in) { out = to_json(in); }, v);
+      return out;
    }
 
    template<>
