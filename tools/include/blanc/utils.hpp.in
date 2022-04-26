@@ -53,8 +53,8 @@ namespace blanc {
          if constexpr (debug)
             print(*path, options);
          ret = std::system((*path+" "+args.str()).c_str());
-#ifdef __APPLE__
-      } else if (auto path = llvm::sys::findProgramByName(prog.c_str(), {"/usr/local/opt/llvm/bin"})) {
+#if defined(__APPLE__)
+      } else if (auto path = llvm::sys::findProgramByName(prog.c_str(), {"@BREW_ROOT@/llvm/bin"})) {
          if constexpr (debug)
             print(*path, options);
          ret = std::system((*path+" "+args.str()).c_str());

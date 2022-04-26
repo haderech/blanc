@@ -34,6 +34,9 @@ include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 20)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/modules)
+include(SetupMacOSPaths)
+
 find_package(LLVM 13 REQUIRED CONFIG)
 find_package(Clang REQUIRED)
 
@@ -43,7 +46,6 @@ include(AddLLVM)
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/modules)
 include(BlancExecutableNames)
 
 if(UNIX AND NOT APPLE)
