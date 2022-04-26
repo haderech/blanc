@@ -374,7 +374,8 @@ int main(int argc, const char** argv) {
       return ret;
    }
    for (const auto& tmp_file : new_inputs) {
-      llvm::sys::fs::remove(tmp_file);
+      if constexpr (!debug)
+         llvm::sys::fs::remove(tmp_file);
    }
    return 0;
 }

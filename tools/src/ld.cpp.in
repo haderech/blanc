@@ -337,11 +337,13 @@ int main(int argc, const char** argv) {
       }
 
       if (auto ret = blanc::exec_subprogram(backends, args)) {
-         llvm::sys::fs::remove(main_file);
+         if constexpr (!debug)
+            llvm::sys::fs::remove(main_file);
          llvm::sys::fs::remove(main_file+".o");
          return ret;
       }
-      llvm::sys::fs::remove(main_file);
+      if constexpr (!debug)
+         llvm::sys::fs::remove(main_file);
       llvm::sys::fs::remove(main_file+".o");
    } else {
 #ifdef __APPLE__
@@ -359,7 +361,8 @@ int main(int argc, const char** argv) {
       }
    }
    for (const auto& desc_file : desc_files) {
-      llvm::sys::fs::remove(desc_file);
+      if constexpr (!debug)
+         llvm::sys::fs::remove(desc_file);
    }
    return 0;
 }
