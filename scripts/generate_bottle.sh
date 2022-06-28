@@ -1,17 +1,17 @@
 #! /bin/bash
 
-VERS=`sw_vers -productVersion | awk '/^10\.15\..*/{print $0}'`
+VERS=`sw_vers -productVersion | awk '/^12\..*/{print $0}'`
 if [[ -z "$VERS" ]];
 then
-   VERS=`sw_vers -productVersion | awk '/^11\..*/{print $0}'`
-   if [[ -z "$VERS" ]];
-   then
-      echo "Error, unsupported MacOS version"
-      exit -1
-   fi
-   MAC_VERSION="big_sur"
-else
-   MAC_VERSION="catalina"
+  echo "Error, unsupported MacOS version"
+  exit -1
+fi
+MAC_VERSION="monterey"
+
+ARCH=$(uname -m)
+if [[ "${ARCH}" == "arm64" ]];
+then
+  MAC_VERSION="arm64_${MAC_VERSION}"
 fi
 
 NAME="${PROJECT}-${VERSION}.${MAC_VERSION}.bottle.tar.gz"
@@ -19,7 +19,16 @@ NAME="${PROJECT}-${VERSION}.${MAC_VERSION}.bottle.tar.gz"
 #mkdir -p ${PROJECT}/${VERSION}/opt/eosio_cdt/lib/cmake
 
 PREFIX="${PROJECT}/${VERSION}"
-SPREFIX="usr\/local"
+if [[ "${ARCH}" == "x86_64" ]];
+then
+  SPREFIX="usr\/local"
+elif [[ "${ARCH}" == "arm64" ]];
+then
+  SPREFIX="opt\/homebrew"
+else
+  echo "Error, unsupported architecture"
+  exit -1
+fi
 SUBPREFIX="opt/${PROJECT}"
 SSUBPREFIX="opt\/${PROJECT}\/opt\/${PROJECT}"
 
@@ -34,26 +43,26 @@ hash=`openssl dgst -sha256 ${NAME} | awk 'NF>1{print $NF}'`
 
 echo "class Blanc < Formula
 
-   homepage \"${URL}\"
-   revision 0
-   url \"https://github.com/turnpike/blanc/archive/${VERSION}.tar.gz\"
-   version \"${VERSION}\"
-   
-   option :universal
+  homepage \"${URL}\"
+  revision 0
+  url \"https://github.com/haderech/blanc/archive/${VERSION}.tar.gz\"
+  version \"${VERSION}\"
 
-   depends_on \"cmake\" => :build
-   depends_on \"llvm\" => :build
-   depends_on :xcode => :build
-   depends_on :macos => :catalina
-   depends_on :arch =>  :intel
-  
-   bottle do
-      root_url \"https://github.com/turnpike/blanc/releases/download/${VERSION}\"
-      sha256 ${MAC_VERSION}: \"${hash}\"
-   end
-   def install
-      raise \"Error, only supporting binary packages at this time\"
-   end
+  option :universal
+
+  depends_on \"binaryen\"
+  depends_on \"cmake\"
+  depends_on \"llvm\"
+  depends_on :xcode => :build
+  depends_on :macos => :monterey
+
+  bottle do
+    root_url \"https://github.com/haderech/blanc/releases/download/${VERSION}\"
+    sha256 ${MAC_VERSION}: \"${hash}\"
+  end
+  def install
+    raise \"Error, only supporting binary packages at this time\"
+  end
 end
 __END__" &> ${PROJECT}.rb
 

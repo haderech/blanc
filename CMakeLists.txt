@@ -28,7 +28,11 @@ endif()
 # compatible eosio.cdt version
 set(EOSIO_CDT_VERSION "1.8.1")
 
-set(BLANC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/opt/${CMAKE_PROJECT_NAME}/${VERSION_FULL})
+if(APPLE AND "${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "arm64")
+  set(BLANC_INSTALL_PREFIX /opt/homebrew/opt/${CMAKE_PROJECT_NAME}/${VERSION_FULL})
+else()
+  set(BLANC_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/opt/${CMAKE_PROJECT_NAME}/${VERSION_FULL})
+endif()
 
 include(GNUInstallDirs)
 
@@ -70,7 +74,7 @@ install(FILES ${CMAKE_BINARY_DIR}/scripts/ricardeos.py DESTINATION ${BLANC_INSTA
 set(VENDOR "Jeeyong Um")
 set(PROJECT_NAME "${CMAKE_PROJECT_NAME}")
 set(DESC "Toolchain for WebAssembly-based blockchain contracts")
-set(URL "https://github.com/turnpike/blanc")
+set(URL "https://github.com/haderech/blanc")
 set(EMAIL "conr2d@gmail.com")
 configure_file(${CMAKE_SOURCE_DIR}/scripts/generate_package.sh.in ${CMAKE_BINARY_DIR}/packages/generate_package.sh @ONLY)
 configure_file(${CMAKE_SOURCE_DIR}/scripts/generate_deb.sh ${CMAKE_BINARY_DIR}/packages/generate_deb.sh COPYONLY)

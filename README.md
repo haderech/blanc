@@ -29,7 +29,7 @@ sudo apt install blanc clang-12 lld-12 binaryen
 You can install Clang/LLVM compatible with Blanc by package manager [brew](https://brew.sh/).
 
 ```sh
-brew tap turnpike/blanc
+brew tap haderech/blanc
 brew install blanc llvm binaryen
 ```
 
