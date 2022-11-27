@@ -173,7 +173,7 @@ std::vector<std::string> override_link_options(InputArgList& Args) {
       if (!Args.hasArgNoClaim(OPT_merge_data_segments, OPT_no_merge_data_segments)) {
          new_opts.emplace_back("--no-merge-data-segments");
       }
-      if (!Args.hasFlag(OPT_stack_first, OPT_INVALID)) {
+      if (!Args.hasFlag(OPT_stack_first, OPT_INVALID, false)) {
          new_opts.emplace_back("--stack-first");
       }
       if (!Args.hasArgNoClaim(OPT_lto_O)) {

@@ -20,26 +20,16 @@ enum ClangFlags {
   FlangOption = (1 << 14),
   FC1Option = (1 << 15),
   FlangOnlyOption = (1 << 16),
-  Ignored = (1 << 17),
+  DXCOption = (1 << 17),
+  CLDXCOption = (1 << 18),
+  Ignored = (1 << 19),
 };
+
 }}}
 
 namespace blanc {
 
-using clang::driver::options::NoXarchOption;
-using clang::driver::options::LinkerInput;
-using clang::driver::options::NoArgumentUnused;
-using clang::driver::options::Unsupported;
-using clang::driver::options::CoreOption;
-using clang::driver::options::CLOption;
-using clang::driver::options::CC1Option;
-using clang::driver::options::CC1AsOption;
-using clang::driver::options::NoDriverOption;
-using clang::driver::options::LinkOption;
-using clang::driver::options::FlangOption;
-using clang::driver::options::FC1Option;
-using clang::driver::options::FlangOnlyOption;
-using clang::driver::options::Ignored;
+using namespace clang::driver::options;
 
 enum ID {
    OPT_INVALID = 0,
