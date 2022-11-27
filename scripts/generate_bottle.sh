@@ -1,12 +1,12 @@
 #! /bin/bash
 
-VERS=`sw_vers -productVersion | awk '/^12\..*/{print $0}'`
+VERS=`sw_vers -productVersion | awk '/^13\..*/{print $0}'`
 if [[ -z "$VERS" ]];
 then
   echo "Error, unsupported MacOS version"
   exit -1
 fi
-MAC_VERSION="monterey"
+MAC_VERSION="ventura"
 
 ARCH=$(uname -m)
 if [[ "${ARCH}" == "arm64" ]];
@@ -54,7 +54,7 @@ echo "class Blanc < Formula
   depends_on \"cmake\"
   depends_on \"llvm\"
   depends_on :xcode => :build
-  depends_on :macos => :monterey
+  depends_on :macos => :ventura
 
   bottle do
     root_url \"https://github.com/haderech/blanc/releases/download/${VERSION}\"
