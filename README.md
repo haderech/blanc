@@ -15,22 +15,18 @@ We changed branch strategy. The branch for daily development is `master` now, so
 
 The prebuilt binares are provided for Ubuntu 20.04 and MacOS Big Sur.
 
-### Ubuntu 20.04
-
-Clang-12 is backported to Ubuntu 20.04, so launchpad PPA support is restored. (Clang-13 is not supported by official PPA yet.)
+### Ubuntu 22.04
 
 ```sh
 sudo add-apt-repository ppa:conr2d/blanc
-sudo apt install blanc clang-12 lld-12 binaryen
+sudo apt install blanc
 ```
 
-### MacOS Big Sur
-
-You can install Clang/LLVM compatible with Blanc by package manager [brew](https://brew.sh/).
+### MacOS Ventura
 
 ```sh
 brew tap haderech/blanc
-brew install blanc llvm binaryen
+brew install blanc
 ```
 
 ## Installed Tools
