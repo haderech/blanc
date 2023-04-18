@@ -41,7 +41,7 @@ set(CMAKE_CXX_STANDARD 20)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/modules)
 include(SetupMacOSPaths)
 
-find_package(LLVM 15 REQUIRED CONFIG)
+find_package(LLVM 16 REQUIRED CONFIG)
 find_package(Clang REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH ${LLVM_DIR})
