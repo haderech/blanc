@@ -159,4 +159,16 @@ namespace blanc { namespace clang_wrapper {
    auto dyn_cast(auto type) {
       return wrapper_t<T>(type);
    }
+
+   auto getExtValue(const llvm::APSInt& i) {
+      uint64_t value = 0;
+      if (auto v = i.tryExtValue()) {
+         value = *v;
+      } else {
+         auto s = llvm::SmallString<20>();
+         i.toString(s);
+         value = std::stoull(std::string(s));
+      }
+      return value;
+   }
 } }

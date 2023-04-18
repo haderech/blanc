@@ -284,10 +284,10 @@ namespace eosio { namespace cdt {
           if (third_arg.getKind() != clang::TemplateArgument::ArgKind::Type)
              CDT_ERROR("abigen_error", decl->getLocation(), "third template argument to KV map is not a type");
 
-          akt.name = name_to_string(first_arg.getAsIntegral().getExtValue());
+          akt.name = name_to_string(clang_wrapper::getExtValue(first_arg.getAsIntegral()));
           akt.type = translate_type(third_arg.getAsType()); // pick the "value" type
           add_type(third_arg.getAsType());
-          akt.indices.push_back({name_to_string(fourth_arg.getAsIntegral().getExtValue()),
+          akt.indices.push_back({name_to_string(clang_wrapper::getExtValue(fourth_arg.getAsIntegral())),
                                   translate_type(second_arg.getAsType())}); // set the "key" as the index type
           _abi.kv_tables.insert(akt);
       }
@@ -303,7 +303,7 @@ namespace eosio { namespace cdt {
                table_type = templ_type.getAsType().getTypePtr()->getAsCXXRecordDecl();
                add_struct(table_type);
 
-               const auto templ_val = templ_base->getTemplateArgs()[1].getAsIntegral().getExtValue();
+               const auto templ_val = clang_wrapper::getExtValue(templ_base->getTemplateArgs()[1].getAsIntegral());
                templ_name = name_to_string(templ_val);
             }
          }
@@ -327,7 +327,7 @@ namespace eosio { namespace cdt {
                                  if (const auto fd = dyn_cast<clang::FunctionDecl>(dre->getDecl())) {
                                     const auto& templ_pack = fd->getTemplateSpecializationArgs()->get(1);
                                     for (const auto& ta : templ_pack.pack_elements()) {
-                                       const auto val = (char)ta.getAsIntegral().getExtValue();
+                                       const auto val = (char)clang_wrapper::getExtValue(ta.getAsIntegral());
                                        index_name.push_back(val);
                                     }
                                  }
@@ -814,7 +814,7 @@ namespace eosio { namespace cdt {
          virtual bool VisitDecl(clang::Decl* decl) {
             if (const auto* d = dyn_cast<clang::ClassTemplateSpecializationDecl>(decl)) {
                if (d->getName() == "multi_index") {
-                  ag.add_table(d->getTemplateArgs()[0].getAsIntegral().getExtValue(),
+                  ag.add_table(clang_wrapper::getExtValue(d->getTemplateArgs()[0].getAsIntegral()),
                         (clang::CXXRecordDecl*)((clang::RecordType*)d->getTemplateArgs()[1].getAsType().getTypePtr())->getDecl());
                } else if (d->getName() == "map") {
                   auto decl = clang_wrapper::wrap_decl(d->getSpecializedTemplate()->getTemplatedDecl());
