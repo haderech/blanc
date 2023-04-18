@@ -144,13 +144,13 @@ namespace eosio { namespace cdt {
 
       void add_tuple(const clang::QualType& type) {
          auto pt = llvm::dyn_cast<clang::ElaboratedType>(type.getTypePtr());
-         auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>((pt) ? pt->desugar().getTypePtr() : type.getTypePtr());
+         auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>((pt) ? pt->desugar().getTypePtr() : type.getTypePtr());
          if (!tst) {
             CDT_INTERNAL_ERROR("template specialization failure");
          }
          abi_struct tup;
          tup.name = get_type(type);
-         for (int i = 0; i < tst->getNumArgs(); ++i) {
+         for (int i = 0; i < tst.getNumArgs(); ++i) {
             clang::QualType ftype = std::get<clang::QualType>(get_template_argument(type, i));
             add_type(ftype);
             tup.fields.push_back( {"field_"+std::to_string(i),
@@ -350,8 +350,8 @@ namespace eosio { namespace cdt {
             if (const auto elab_type = dyn_cast<clang::ElaboratedType>(index_type.getAsType().getTypePtr())) {
                // This is the macro case
                const auto decayed_type = elab_type->getNamedType();
-               if (const auto d = dyn_cast<clang::TemplateSpecializationType>(decayed_type)) {
-                  const auto& decl_type = d->getArg(0);
+               if (const auto d = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>(decayed_type)) {
+                  const auto& decl_type = d.getArg(0);
                   if (const auto dcl_type = dyn_cast<clang::DecltypeType>(decl_type.getAsType())) {
                      idx_type = get_type_string_from_kv_index_macro_decltype(dcl_type);
                   } else {
@@ -383,9 +383,9 @@ namespace eosio { namespace cdt {
       void add_variant( const clang::QualType& t ) {
          abi_variant var;
          auto pt = llvm::dyn_cast<clang::ElaboratedType>(t.getTypePtr());
-         auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>((pt) ? pt->desugar().getTypePtr() : t.getTypePtr());
+         auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>((pt) ? pt->desugar().getTypePtr() : t.getTypePtr());
          var.name = get_type(t);
-         for (int i=0; i < tst->getNumArgs(); ++i) {
+         for (int i=0; i < tst.getNumArgs(); ++i) {
             var.types.push_back(get_template_argument_as_string( t, i ));
             add_type(std::get<clang::QualType>(get_template_argument( t, i )));
          }

@@ -123,7 +123,7 @@ struct generation_utils {
 
    static inline bool is_ignorable( const clang::QualType& type ) {
       auto check = [&](const clang::Type* pt) {
-        if (auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>(pt))
+        if (auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>(pt))
          if (auto rt = llvm::dyn_cast<clang::RecordType>(tst->desugar())) {
             auto decl = rt->getDecl();
             return clang_wrapper::wrap_decl(decl).isEosioIgnore();
@@ -144,10 +144,10 @@ struct generation_utils {
       if ( !is_ignorable(type) )
          return type;
       auto get = [&](const clang::Type* pt) {
-         if (auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>(pt))
+         if (auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>(pt))
             if (auto decl = llvm::dyn_cast<clang::RecordType>(tst->desugar())) {
                auto _decl = decl->getDecl();
-               return clang_wrapper::wrap_decl(_decl).isEosioIgnore() ? tst->getArg(0).getAsType() : type;
+               return clang_wrapper::wrap_decl(_decl).isEosioIgnore() ? tst.getArg(0).getAsType() : type;
             }
          return type;
       };
@@ -323,7 +323,7 @@ struct generation_utils {
 
    inline bool is_template_specialization( const clang::QualType& type, const std::vector<std::string>& names ) {
       auto check = [&](const clang::Type* pt) {
-         if (auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>(pt)) {
+         if (auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>(pt)) {
             if (auto rt = llvm::dyn_cast<clang::RecordType>(tst->desugar())) {
                if ( names.empty() ) {
                   return true;
@@ -356,9 +356,9 @@ struct generation_utils {
       template_arg_t ret_val;
 
       auto resolve = [&](const clang::Type* t) {
-         auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>(t);
+         auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>(t);
          if (tst) {
-            auto arg = tst->getArg(index);
+            auto arg = tst.getArg(index);
             if ( arg.getKind() == clang::TemplateArgument::ArgKind::Type ) {
                ret_val = arg.getAsType();
                return;
@@ -512,11 +512,11 @@ struct generation_utils {
 
    inline std::string get_template_name( const clang::QualType& type ) {
       auto pt = llvm::dyn_cast<clang::ElaboratedType>(type.getTypePtr());
-      auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>(pt ? pt->desugar().getTypePtr() : type.getTypePtr());
+      auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>(pt ? pt->desugar().getTypePtr() : type.getTypePtr());
       std::string ret = tst->getTemplateName().getAsTemplateDecl()->getName().str()+"_";
-      for (int i=0; i < tst->getNumArgs(); ++i) {
+      for (int i=0; i < tst.getNumArgs(); ++i) {
          ret += get_template_argument_as_string(type, i);
-         if (i < tst->getNumArgs() - 1) {
+         if (i < tst.getNumArgs() - 1) {
             ret += "_";
          }
       }
@@ -555,22 +555,22 @@ struct generation_utils {
       }
       else if ( is_template_specialization( type, {"tuple"} )) {
          auto pt = llvm::dyn_cast<clang::ElaboratedType>(type.getTypePtr());
-         auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>( pt ? pt->desugar().getTypePtr() : type.getTypePtr() );
+         auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>( pt ? pt->desugar().getTypePtr() : type.getTypePtr() );
          std::string ret = "tuple_";
-         for (int i=0; i < tst->getNumArgs(); ++i) {
+         for (int i=0; i < tst.getNumArgs(); ++i) {
             ret += get_template_argument_as_string( type, i );
-            if ( i < tst->getNumArgs()-1 )
+            if ( i < tst.getNumArgs()-1 )
                ret += "_";
          }
          return replace_in_name(ret);
       }
       else if ( is_template_specialization( type, {} )) {
          auto pt = llvm::dyn_cast<clang::ElaboratedType>(type.getTypePtr());
-         auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>(pt ? pt->desugar().getTypePtr() : type.getTypePtr() );
+         auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>(pt ? pt->desugar().getTypePtr() : type.getTypePtr() );
          std::string ret = tst->getTemplateName().getAsTemplateDecl()->getName().str()+"_";
-         for (int i=0; i < tst->getNumArgs(); ++i) {
+         for (int i=0; i < tst.getNumArgs(); ++i) {
             ret += get_template_argument_as_string(type,i);
-            if ( i < tst->getNumArgs()-1 )
+            if ( i < tst.getNumArgs()-1 )
                ret += "_";
          }
          return _translate_type(replace_in_name(ret));
@@ -666,7 +666,7 @@ struct generation_utils {
 
    inline clang::QualType get_nested_type(const clang::QualType& t) {
       if (auto pt = llvm::dyn_cast<clang::ElaboratedType>(t.getTypePtr())) {
-         if (auto tst = llvm::dyn_cast<clang::TemplateSpecializationType>(pt->desugar().getTypePtr())) {
+         if (auto tst = clang_wrapper::dyn_cast<clang::TemplateSpecializationType>(pt->desugar().getTypePtr())) {
             if (auto rt = llvm::dyn_cast<clang::ElaboratedType>(tst->desugar())) {
                return tst->desugar();
             }

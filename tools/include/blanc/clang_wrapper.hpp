@@ -42,7 +42,9 @@ namespace blanc { namespace clang_wrapper {
          const auto operator->() const { return decl; }
          auto operator*() { return decl; }
          const auto operator*() const { return decl; }
+
          operator bool() { return decl != nullptr; }
+         operator bool() const { return decl != nullptr; }
 
          auto getParent() const {
             auto p = llvm::dyn_cast<clang::CXXRecordDecl>(decl->getParent());
@@ -116,5 +118,45 @@ namespace blanc { namespace clang_wrapper {
    template<typename T>
    Decl<T> wrap_decl(T decl) {
       return {decl};
+   }
+
+   class TemplateSpecializationType {
+      public:
+         TemplateSpecializationType(auto type): type(llvm::dyn_cast<clang::TemplateSpecializationType>(type)) {
+            if (this->type) {
+               args = this->type->template_arguments();
+            }
+         }
+
+         const clang::TemplateArgument& getArg(unsigned i) const { return args[i]; }
+         unsigned getNumArgs() const { return args.size(); }
+
+         auto operator->() { return type; }
+         const auto operator->() const { return type; }
+         auto operator*() { return type; }
+         const auto operator*() const { return type; }
+
+         operator bool() { return type != nullptr; }
+         operator bool() const { return type != nullptr; }
+
+      private:
+         const clang::TemplateSpecializationType* type;
+         llvm::ArrayRef<clang::TemplateArgument> args;
+   };
+
+   template<typename T>
+   struct Wrapper;
+
+   template<>
+   struct Wrapper<clang::TemplateSpecializationType> {
+      using type = TemplateSpecializationType;
+   };
+
+   template<typename T>
+   using wrapper_t = typename Wrapper<T>::type;
+
+   template<typename T>
+   auto dyn_cast(auto type) {
+      return wrapper_t<T>(type);
    }
 } }
