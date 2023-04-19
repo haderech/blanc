@@ -9,7 +9,7 @@ FOREACH(FN ${SRC_FILENAMES})
 ENDFOREACH(FN)
 LIST(APPEND SRC_FILES "libcxxabi/src/private_typeinfo.cpp")
 LIST(APPEND SRC_FILES "libcxxabi/src/cxa_demangle.cpp")
-LIST(APPEND SRC_FILES "libcxxabi/src/cxa_virtual_fallback.cpp")
+LIST(APPEND SRC_FILES "cxa_virtual_fallback.cpp")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-everything -frtti")
 
@@ -22,6 +22,7 @@ target_include_directories(c++
     ${CMAKE_CURRENT_SOURCE_DIR}/libcxx/include
     ${CMAKE_CURRENT_SOURCE_DIR}/libcxxabi/include
   PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/libcxx/src
     ${CMAKE_SOURCE_DIR}/libc/musl/include
     ${CMAKE_SOURCE_DIR}/libc/musl/src/internal
     ${CMAKE_SOURCE_DIR}/libc/musl/arch/eos)
@@ -31,6 +32,7 @@ target_link_libraries(c++ c cstdio)
 add_custom_command( TARGET c++ POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:c++> ${BASE_BINARY_DIR}/lib )
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/libcxx/include/ DESTINATION ${BASE_BINARY_DIR}/include/c++/v1)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__config_site DESTINATION ${BASE_BINARY_DIR}/include/c++/v1)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/libcxxabi/include/ DESTINATION ${BASE_BINARY_DIR}/include/c++/v1)
 
 set(UNSUPPORTED_HEADERS
