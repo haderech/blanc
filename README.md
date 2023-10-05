@@ -1,3 +1,7 @@
+# DEPRECATED
+
+This repository is no longer maintained. Please use [CDT](https://github.com/AntelopeIO/cdt) instead.
+
 # Blanc
 
 **BLockchAiN Contract toolchain**
